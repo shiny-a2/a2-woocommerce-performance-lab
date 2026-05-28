@@ -122,6 +122,13 @@ The `/samples` directory contains curated examples:
 - options autoload audit;
 - performance instrumentation.
 
+## Engineering Notes
+
+- [Request classification before cache](docs/engineering-notes/request-classification-before-cache.md)
+- [Action Scheduler backlog as operational risk](docs/engineering-notes/action-scheduler-backlog-as-operational-risk.md)
+- [Transient growth and autoload pressure](docs/engineering-notes/transient-growth-and-autoload-pressure.md)
+- [REST pressure in WooCommerce stores](docs/engineering-notes/rest-pressure-in-woocommerce-stores.md)
+
 ## Security & Privacy Notes
 
 No production source, credentials, private URLs, customer data, order data, real logs, server paths, or business-sensitive logic are included.
@@ -135,4 +142,3 @@ PHP, WordPress, WooCommerce, MySQL, REST API, Action Scheduler, WP-Cron, LiteSpe
 - Portfolio: https://amiraliyaghouti.com
 - Projects: https://amiraliyaghouti.com/projects.html
 - GitHub profile: https://github.com/shiny-a2
-
