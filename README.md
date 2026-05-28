@@ -1,5 +1,7 @@
 # A2 WooCommerce Performance Lab
 
+[![Sample PHP Syntax Check](https://github.com/shiny-a2/a2-woocommerce-performance-lab/actions/workflows/sample-php-lint.yml/badge.svg)](https://github.com/shiny-a2/a2-woocommerce-performance-lab/actions/workflows/sample-php-lint.yml)
+
 Public-safe engineering case study for WooCommerce performance work around cache boundaries, REST pressure, Action Scheduler cleanup, transient growth, autoload hygiene, and production diagnostics.
 
 This repository is a curated showcase. It is not a production source dump.
