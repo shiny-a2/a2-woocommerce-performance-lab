@@ -1,0 +1,49 @@
+name: Sample PHP Syntax Check
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'samples/**/*.php'
+      - '.github/workflows/sample-php-lint.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'samples/**/*.php'
+      - '.github/workflows/sample-php-lint.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  php-lint:
+    name: PHP syntax lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Lint sample PHP files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t files < <(find samples -type f -name '*.php' 2>/dev/null | sort)
+
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No sample PHP files found."
+            exit 0
+          fi
+
+          for file in "${files[@]}"; do
+            echo "Linting ${file}"
+            php -l "$file"
+          done
