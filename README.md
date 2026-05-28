@@ -129,6 +129,13 @@ The `/samples` directory contains curated examples:
 - [Transient growth and autoload pressure](docs/engineering-notes/transient-growth-and-autoload-pressure.md)
 - [REST pressure in WooCommerce stores](docs/engineering-notes/rest-pressure-in-woocommerce-stores.md)
 
+## Infrastructure Notes
+
+- [Request lifecycle](docs/infrastructure/request-lifecycle.md)
+- [Observability and instrumentation](docs/infrastructure/observability-and-instrumentation.md)
+- [Failure mode matrix](docs/infrastructure/failure-mode-matrix.md)
+- [Infrastructure samples](samples/infrastructure)
+
 ## Security & Privacy Notes
 
 No production source, credentials, private URLs, customer data, order data, real logs, server paths, or business-sensitive logic are included.
