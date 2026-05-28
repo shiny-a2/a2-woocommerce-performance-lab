@@ -1,72 +1,138 @@
 # A2 WooCommerce Performance Lab
 
+Public-safe engineering case study for WooCommerce performance work around cache boundaries, REST pressure, Action Scheduler cleanup, transient growth, autoload hygiene, and production diagnostics.
+
+This repository is a curated showcase. It is not a production source dump.
+
 ## Overview
 
-Public showcase for WooCommerce performance engineering patterns used around high-pressure WordPress commerce systems: microcache boundaries, REST route control, Action Scheduler cleanup, transient storm protection, autoload hygiene, and low-overhead performance diagnostics.
+The work represented here focuses on WooCommerce stores where performance problems were not isolated to one slow page. The system had several pressure points at the same time: Elementor-heavy product pages, slow archive filters, anonymous REST traffic, background queue buildup, transient table growth, and admin instability.
+
+## Production Context
+
+- Live WooCommerce catalog with product detail pages, archives, cart, checkout, admin workflows, and third-party plugins.
+- Elementor-heavy rendering where cache safety matters as much as raw speed.
+- Logged-in, cart, checkout, and order flows had to remain untouched by public-page optimizations.
+- The system needed small, reversible changes instead of broad platform rewrites.
 
 ## Problem
 
-The store had slow product/detail pages, expensive archive routes, heavy anonymous REST traffic, background queue pressure, and database growth from transient storms. The work needed to improve performance without breaking WooCommerce cart, checkout, logged-in sessions, Elementor rendering, or admin workflows.
+The platform was spending too much time and database work on repeatable public requests and background maintenance. The most visible symptoms were slow PDP TTFB, slow archive p95, REST route pressure, Action Scheduler backlog, and transient growth inside WordPress options.
 
-## Technical Approach
+## Operational Constraints
 
-- Guest-only full-page microcache with strict bypass rules for cart, checkout, sessions, logged-in users, and unsafe request methods.
-- Route-aware REST shield for anonymous high-cost endpoints.
-- Action Scheduler tuning and cleanup in bounded batches.
-- Transient storm detection and chunked cleanup.
-- Options autoload guard to reduce bootstrap memory pressure.
-- Performance logger that captures route, timing, query count, and context without storing customer data.
+- Do not cache cart, checkout, account, order-pay, or logged-in requests.
+- Do not break WooCommerce fragments, payment callbacks, admin AJAX, or Elementor editing.
+- Keep cleanup jobs bounded so maintenance work does not create a new spike.
+- Log enough to diagnose slow routes without storing customer data or private logs.
 
-## Key Features
+## Scaling Challenges
 
-- Fullpage Microcache
-- REST Shield
-- Action Scheduler optimization
-- Transient Storm Guard
-- Options Autoload Guard
-- Performance logging
-- LiteSpeed/WooCommerce optimization patterns
+- Anonymous traffic can multiply expensive Elementor/WooCommerce bootstraps.
+- Background queues become operationally visible when pending actions grow faster than they drain.
+- Transient storms can turn a plugin behavior into a database boot-cost problem.
+- REST endpoints can become a CPU path even when they do not create direct revenue.
 
-## Performance / Business Impact
+## Architecture Decisions
 
-- PDP TTFB: 2.3s -> 0.9s
-- Archive p95: 5.2s -> 1.7s
-- Action Scheduler pending queue: about 38k -> about 4.9k
-- Transient rows: about 1.3M -> about 180k
-- REST p95: 2.8s -> 0.9s
+- Use route-aware request gates before cache or REST shortcuts.
+- Keep microcache guest-only and time-bounded.
+- Treat invalidation as part of the feature, not a later cleanup.
+- Run queue and transient cleanup in fixed-size batches.
+- Keep instrumentation low-cardinality and privacy-safe.
 
-## Architecture
+## Request Lifecycle
+
+```mermaid
+flowchart TD
+    A[Incoming request] --> B{Unsafe commerce state?}
+    B -->|cart checkout account logged-in POST| W[WooCommerce normal path]
+    B -->|guest PDP/archive| C{Fresh microcache entry?}
+    C -->|hit| H[Return cached HTML]
+    C -->|miss| R[Render WordPress/WooCommerce]
+    R --> S[Store short-lived cache entry]
+    B -->|anonymous REST pressure| G[REST shield rules]
+    G -->|allowed| W
+    G -->|blocked or short-circuited| L[Return controlled response]
+    W --> M[Performance logger]
+    H --> M
+    L --> M
+```
+
+## Queue And Database Maintenance
 
 ```mermaid
 flowchart LR
-    Request[Public request] --> Guard{Safe to cache or short-circuit?}
-    Guard -->|Guest PDP/archive| Cache[Microcache layer]
-    Guard -->|REST noise| RestShield[REST Shield]
-    Guard -->|Admin/checkout/session| Woo[WooCommerce normal flow]
-    Cache --> Logger[Performance logger]
-    RestShield --> Logger
-    Queue[Action Scheduler] --> Cleanup[Bounded cleanup jobs]
-    DB[(MySQL)] --> Transients[Transient guard]
-    DB --> Autoload[Autoload guard]
+    Scheduler[Action Scheduler / WP-Cron] --> Batch[Bounded maintenance batch]
+    Batch --> Actions[Old action rows]
+    Batch --> Transients[Oversized transient families]
+    Batch --> Autoload[Autoload audit candidates]
+    Actions --> Report[Maintenance summary]
+    Transients --> Report
+    Autoload --> Report
 ```
+
+## Tradeoffs
+
+- Microcache improves public latency but increases invalidation responsibility.
+- REST shielding reduces anonymous pressure but must preserve legitimate integrations.
+- Cleanup jobs reduce table pressure but must run in conservative batches.
+- Logging improves diagnosis but must avoid sensitive request details and high write volume.
+
+## Failure Prevention
+
+- Bypass-first design for unsafe routes and request methods.
+- TTL-based cache expiry even when invalidation is missed.
+- Capability checks for admin controls.
+- Bounded jobs and lock keys for maintenance routines.
+- Privacy-safe log fields only: route class, timing, status, query count, and coarse context.
+
+## Performance Strategy
+
+| Bottleneck | Strategy | Verified impact |
+|---|---|---|
+| PDP TTFB | guest-only full-page microcache | 2.3s -> 0.9s |
+| Archive p95 | cache-aware filters and query reduction | 5.2s -> 1.7s |
+| REST p95 | anonymous route shield and endpoint caching | 2.8s -> 0.9s |
+| Action Scheduler backlog | bounded cleanup and queue pressure reduction | about 38k -> about 4.9k |
+| transient table growth | transient storm guard and chunked cleanup | about 1.3M -> about 180k |
+
+## Operational Learnings
+
+- The safest performance gains usually come from understanding request classes before writing cache code.
+- WooCommerce performance work has to respect commerce state first, speed second.
+- Database hygiene becomes infrastructure work when option/transient growth affects every request.
+- Small MU-plugin modules are easier to disable, review, and roll back under production pressure.
+
+## Future Improvements
+
+- Add sanitized screenshots of internal diagnostics once no route names or production identifiers are visible.
+- Add a small synthetic test harness for request classification rules.
+- Add changelog entries for each public-safe pattern.
 
 ## Code Samples
 
-- `samples/sample-mu-plugin-bootstrap.php`
-- `samples/sample-cache-layer.php`
-- `samples/sample-action-scheduler-cleanup.php`
-- `samples/sample-performance-logger.php`
+The `/samples` directory contains curated examples:
+
+- request gating and fail-fast routing;
+- cache layer design;
+- REST shielding;
+- Action Scheduler cleanup;
+- transient protection;
+- options autoload audit;
+- performance instrumentation.
 
 ## Security & Privacy Notes
 
-This repository contains curated samples only. Production code, credentials, private URLs, customer data, operational logs, and sensitive business rules are not included.
+No production source, credentials, private URLs, customer data, order data, real logs, server paths, or business-sensitive logic are included.
 
 ## Tech Stack
 
-PHP, WordPress, WooCommerce, MySQL, REST API, Action Scheduler, WP-Cron, LiteSpeed, JavaScript.
+PHP, WordPress, WooCommerce, MySQL, REST API, Action Scheduler, WP-Cron, LiteSpeed-aware cache strategy.
 
 ## Related Links
 
 - Portfolio: https://amiraliyaghouti.com
+- Projects: https://amiraliyaghouti.com/projects.html
 - GitHub profile: https://github.com/shiny-a2
 
