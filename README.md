@@ -148,6 +148,11 @@ The `/samples` directory contains curated examples:
 - [Sample PHP syntax workflow](.github/workflows/sample-php-lint.yml)
 - [Samples directory](samples)
 
+## Related Technical Writing
+
+- [Why WooCommerce Performance Starts With Request Classification](https://github.com/shiny-a2/shiny-a2/blob/main/docs/technical-writing/articles/woocommerce-request-classification-before-cache.md)
+- [Action Scheduler Backlog Is Operational Risk, Not Housekeeping](https://github.com/shiny-a2/shiny-a2/blob/main/docs/technical-writing/articles/action-scheduler-backlog-operational-risk.md)
+
 ## Security & Privacy Notes
 
 No production source, credentials, private URLs, customer data, order data, real logs, server paths, or business-sensitive logic are included.
