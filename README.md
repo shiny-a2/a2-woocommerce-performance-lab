@@ -10,6 +10,10 @@ This repository is a curated showcase. It is not a production source dump.
 
 This repo demonstrates production-minded WooCommerce performance engineering through public-safe documentation and sanitized sample patterns. It relates to stores where slow PDPs, archive pages, REST routes, scheduler backlog, and transient growth create operational pressure. It proves request classification, cache boundaries, REST pressure control, queue cleanup, and observability. Start with `docs/infrastructure`, `docs/engineering-notes`, and `samples/infrastructure`. This is a showcase repository, not a production package.
 
+## Recent Public Update
+
+2026-06-06: The private MU-plugin collection added a small admin-operations payment layer for additional offline/internal order channels. The public takeaway is operational consistency: back-office orders can be attributed to controlled internal channels while those methods remain hidden from frontend checkout. No production source, gateway identifiers, private names, or business-sensitive routing rules are included here.
+
 ## Overview
 
 The work represented here focuses on WooCommerce stores where performance problems were not isolated to one slow page. The system had several pressure points at the same time: Elementor-heavy product pages, slow archive filters, anonymous REST traffic, background queue buildup, transient table growth, and admin instability.

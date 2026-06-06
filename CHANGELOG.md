@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1 - Admin Operations Note
+
+- Added a public-safe update note for a private MU-plugin change that expanded admin-only offline/internal payment channel support.
+- Clarified the operational value without publishing production source, gateway identifiers, private names, or sensitive routing logic.
+
 ## 0.3.0 - Activity Layer
 
 - Added realistic roadmap and known limitations.
@@ -20,4 +25,3 @@
 
 - Samples assume WordPress/WooCommerce concepts and are not standalone packages.
 - Code is intentionally incomplete around production settings, invalidation hooks, and private operational rules.
-
