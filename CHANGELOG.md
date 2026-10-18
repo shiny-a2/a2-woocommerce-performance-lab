@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2 - Read-Only Performance Audit
+
+- Documented a bounded performance investigation that kept shared SQL/cache counters separate from application-specific conclusions.
+- Recorded an isolated WordPress menu-item compatibility fix and its regression test without presenting it as deployed or claiming unmeasured latency gains.
+
 ## 0.3.1 - Admin Operations Note
 
 - Added a public-safe update note for a private MU-plugin change that expanded admin-only offline/internal payment channel support.

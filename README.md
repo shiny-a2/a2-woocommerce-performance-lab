@@ -12,6 +12,8 @@ This repo demonstrates production-minded WooCommerce performance engineering thr
 
 ## Recent Public Update
 
+2026-10-18: A read-only WooCommerce infrastructure audit separated shared database and cache pressure from site-specific findings. An isolated source fix now initializes the state fields expected by WordPress's menu walker, preventing a repeatable PHP warning in a local regression test. The production environment was not changed; query attribution and before/after latency still require a controlled diagnostic window.
+
 2026-06-06: The private MU-plugin collection added a small admin-operations payment layer for additional offline/internal order channels. The public takeaway is operational consistency: back-office orders can be attributed to controlled internal channels while those methods remain hidden from frontend checkout. No production source, gateway identifiers, private names, or business-sensitive routing rules are included here.
 
 ## Overview
